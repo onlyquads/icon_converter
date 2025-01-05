@@ -15,7 +15,7 @@ class ImageToIcoConverter(QWidget):
         self.image_files = []
         self.destination_folder = ""
         self.source_image_folder = None
-        
+
         # Set up UI elements
         self.label = QLabel(
             "Drag and drop images here to convert to .ico format"
@@ -99,23 +99,37 @@ class ImageToIcoConverter(QWidget):
 
     def convert_to_ico(self, file_path):
         try:
-            img = Image.open(file_path)
+            img = Image.open(file_path).convert("RGBA")  # Ensure transparency support
             base_name = os.path.splitext(os.path.basename(file_path))[0]
-            ico_path = os.path.join(
-                self.destination_folder, f"{base_name}.ico"
-                )
-            
+            ico_path = os.path.join(self.destination_folder, f"{base_name}.ico")
+
             # Define the sizes commonly used for Windows icons
             sizes = [
-                (16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)
-                ]
+                (256, 256),
+                (128, 128),
+                (64, 64),
+                (48, 48),
+                (32, 32),
+                (16, 16),
+            ]
 
-            # Resize the image to each of the sizes and save as an 
-            # ICO file with multiple resolutions
-            img.save(ico_path, format='ICO', sizes=sizes)
+            # Create a list of resized images using anti-aliasing (LANCZOS)
+            resized_images = [
+                img.resize(size, Image.LANCZOS) for size in sizes
+            ]
+
+            # Save the resized images as an ICO file
+            resized_images[0].save(
+                ico_path,
+                format="ICO",
+                sizes=[
+                    (size[0], size[1]) for size in sizes
+                ]
+            )
             print(f"Saved ICO file to: {ico_path}")
         except Exception as e:
             print(f"Failed to convert {file_path} to ICO: {e}")
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
