@@ -1,16 +1,31 @@
 import sys
 import os
+import subprocess
 from PySide2.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QFileDialog)
 from PySide2.QtCore import Qt
-from PIL import Image
+
+def check_and_install_PIL():
+    try:
+        import PIL  # Check if pyyaml is already installed
+        print("PIL is already installed.")
+    except ImportError:
+        print("PIL is not installed. Installing it now...")
+        try:
+            subprocess.check_call(
+                [sys.executable, "-m", "pip", "install", "pillow"]
+            )
+            print("PIL installed successfully.")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to install PIL: {e}")
+            sys.exit(1)
 
 class ImageToIcoConverter(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Image to ICO Converter")
         self.setGeometry(100, 100, 400, 300)
-
+        check_and_install_PIL()
         # Initialize variables
         self.image_files = []
         self.destination_folder = ""
@@ -58,6 +73,7 @@ class ImageToIcoConverter(QWidget):
                     ):
                     self.image_files.append(file_path)
                     self.source_image_folder = os.path.dirname(file_path)
+                    self.destination_folder = self.source_image_folder
             self.label.setText(
                 f"{len(self.image_files)} image(s) ready for conversion.")
             # Enable convert button when files are dropped
@@ -98,7 +114,9 @@ class ImageToIcoConverter(QWidget):
         self.convert_button.setEnabled(False)
 
     def convert_to_ico(self, file_path):
+
         try:
+            from PIL import Image
             img = Image.open(file_path).convert("RGBA")  # Ensure transparency support
             base_name = os.path.splitext(os.path.basename(file_path))[0]
             ico_path = os.path.join(self.destination_folder, f"{base_name}.ico")
