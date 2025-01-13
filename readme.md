@@ -6,9 +6,5 @@
 4. Hit convert!
 
 ## Requirement
-This script requires PySide2 and pillow
-
-
-```
-pip install pillow
-```
+This script requires PySide2.
+The script auto check and install Pillow if not already installed
