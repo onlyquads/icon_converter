@@ -1,9 +1,10 @@
 import sys
 import os
 import subprocess
-from PySide2.QtWidgets import (
+from PySide6.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QFileDialog)
-from PySide2.QtCore import Qt
+from PySide6.QtCore import Qt
+
 
 def check_and_install_PIL():
     try:
@@ -19,6 +20,7 @@ def check_and_install_PIL():
         except subprocess.CalledProcessError as e:
             print(f"Failed to install PIL: {e}")
             sys.exit(1)
+
 
 class ImageToIcoConverter(QWidget):
     def __init__(self):
@@ -64,20 +66,21 @@ class ImageToIcoConverter(QWidget):
             event.ignore()
 
     def dropEvent(self, event):
-        if event.mimeData().hasUrls():
-            self.image_files.clear()  # Clear previous files
-            for url in event.mimeData().urls():
-                file_path = url.toLocalFile()
-                if file_path.lower().endswith(
-                    ('.png', '.jpg', '.jpeg', '.bmp', '.gif')
-                    ):
-                    self.image_files.append(file_path)
-                    self.source_image_folder = os.path.dirname(file_path)
-                    self.destination_folder = self.source_image_folder
-            self.label.setText(
-                f"{len(self.image_files)} image(s) ready for conversion.")
-            # Enable convert button when files are dropped
-            self.convert_button.setEnabled(True)
+        if not event.mimeData().hasUrls():
+            return
+        self.image_files.clear()  # Clear previous files
+        for url in event.mimeData().urls():
+            file_path = url.toLocalFile()
+            if file_path.lower().endswith(
+                ('.png', '.jpg', '.jpeg', '.bmp', '.gif')
+                ):
+                self.image_files.append(file_path)
+                self.source_image_folder = os.path.dirname(file_path)
+                self.destination_folder = self.source_image_folder
+        self.label.setText(
+            f"{len(self.image_files)} image(s) ready for conversion.")
+        # Enable convert button when files are dropped
+        self.convert_button.setEnabled(True)
 
     def select_destination_folder(self):
         source_folder = os.path.expanduser("~")
