@@ -1,9 +1,9 @@
-import sys
 import os
+import sys
 import subprocess
-from PySide6.QtWidgets import (
-    QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QFileDialog)
-from PySide6.QtCore import Qt
+
+from PySide6 import QtWidgets
+from PySide6 import QtCore
 
 
 def check_and_install_PIL():
@@ -22,7 +22,7 @@ def check_and_install_PIL():
             sys.exit(1)
 
 
-class ImageToIcoConverter(QWidget):
+class ImageToIcoConverter(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Image to ICO Converter")
@@ -34,23 +34,23 @@ class ImageToIcoConverter(QWidget):
         self.source_image_folder = None
 
         # Set up UI elements
-        self.label = QLabel(
+        self.label = QtWidgets.QLabel(
             "Drag and drop images here to convert to .ico format"
             )
-        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
 
         # Browse button for destination folder
-        self.browse_button = QPushButton("Select Destination Folder")
+        self.browse_button = QtWidgets.QPushButton("Select Destination Folder")
         self.browse_button.clicked.connect(self.select_destination_folder)
 
         # Convert button to start conversion
-        self.convert_button = QPushButton("Convert to ICO")
+        self.convert_button = QtWidgets.QPushButton("Convert to ICO")
         self.convert_button.clicked.connect(self.convert_images_to_ico)
         # Disable until files are dropped
         self.convert_button.setEnabled(False)
 
         # Set up the layout
-        layout = QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.label)
         layout.addWidget(self.browse_button)
         layout.addWidget(self.convert_button)
@@ -86,7 +86,7 @@ class ImageToIcoConverter(QWidget):
         source_folder = os.path.expanduser("~")
         if self.source_image_folder:
             source_folder = self.source_image_folder
-        folder = QFileDialog.getExistingDirectory(
+        folder = QtWidgets.QFileDialog.getExistingDirectory(
             self,
             "Select Destination Folder",
             source_folder
@@ -120,9 +120,11 @@ class ImageToIcoConverter(QWidget):
 
         try:
             from PIL import Image
-            img = Image.open(file_path).convert("RGBA")  # Ensure transparency support
+            img = Image.open(file_path).convert("RGBA")
             base_name = os.path.splitext(os.path.basename(file_path))[0]
-            ico_path = os.path.join(self.destination_folder, f"{base_name}.ico")
+            ico_path = os.path.join(
+                self.destination_folder, f"{base_name}.ico"
+            )
 
             # Define the sizes commonly used for Windows icons
             sizes = [
@@ -153,7 +155,7 @@ class ImageToIcoConverter(QWidget):
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     window = ImageToIcoConverter()
     window.show()
     sys.exit(app.exec_())
